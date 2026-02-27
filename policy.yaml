@@ -1,0 +1,14 @@
+default_answers:
+  work_authorization: "US Citizen"
+  requires_sponsorship: "No"
+  open_to_relocation: "No"
+  notice_period: "2 weeks"
+  salary_expectation: "$160,000-$210,000"
+  why_interested: "The role aligns with my background in backend systems and AI-enabled workflows."
+
+generation:
+  cover_letter_tone: "concise_professional"
+  max_cover_letter_words: 220
+
+ranking:
+  minimum_score_for_generate: 70

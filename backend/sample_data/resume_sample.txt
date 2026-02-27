@@ -1,0 +1,15 @@
+Alex Candidate
+alex@example.com | +1 (555) 555-1100
+https://linkedin.com/in/alexcandidate
+
+Staff Software Engineer with 8+ years building backend systems and AI workflows.
+Skills: Python, FastAPI, SQL, PostgreSQL, Docker, AWS, TypeScript
+
+Experience:
+- Built hiring workflow automations at Acme Technologies Inc.
+- Led project to rank applications using NLP and human review checkpoints.
+- Authorized to work in the United States.
+- Open to Remote roles in Seattle and New York.
+
+Education:
+Bachelor of Science, Computer Science, State University

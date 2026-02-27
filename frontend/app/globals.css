@@ -1,0 +1,100 @@
+:root {
+  --bg: #f4f1ea;
+  --ink: #1f2a37;
+  --card: #fffdf8;
+  --accent: #0f766e;
+  --accent-2: #c2410c;
+  --muted: #5b6675;
+  --line: #d7d2c8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Space Grotesk", "Avenir Next", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at 10% 10%, #fffef9, #f4f1ea 45%, #e9e2d5 100%);
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+a {
+  color: inherit;
+}
+
+.nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(31, 42, 55, 0.06);
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.grid.two {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+input, textarea, select, button {
+  font: inherit;
+}
+
+input, textarea, select {
+  width: 100%;
+  margin-top: 6px;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+button {
+  border: 0;
+  background: linear-gradient(120deg, var(--accent), #1f9d8a);
+  color: white;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: linear-gradient(120deg, var(--accent-2), #dd6b20);
+}
+
+.tag {
+  display: inline-block;
+  padding: 4px 9px;
+  background: #e7f7f5;
+  border: 1px solid #bce9e4;
+  border-radius: 999px;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+
+.small {
+  color: var(--muted);
+  font-size: 0.92rem;
+}

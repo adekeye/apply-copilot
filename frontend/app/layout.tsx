@@ -1,12 +1,15 @@
 import "./globals.css";
+import { AuthProvider } from "@/components/AuthProvider";
 import { NavBar } from "@/components/NavBar";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <NavBar />
-        <main>{children}</main>
+        <AuthProvider>
+          <NavBar />
+          <main>{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );

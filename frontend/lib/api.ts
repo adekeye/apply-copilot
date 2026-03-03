@@ -1,3 +1,5 @@
+import { clearToken, getToken, setToken } from "./auth";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
 
 export type Job = {
@@ -21,19 +23,39 @@ export type Job = {
 };
 
 function authHeaders(): Record<string, string> {
-  if (typeof window === "undefined") return {};
-  const token = window.localStorage.getItem("copilot_token");
+  const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export async function login(username: string, password: string) {
+export async function login(username: string, password: string): Promise<{ access_token: string }> {
   const res = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password })
   });
-  if (!res.ok) throw new Error("Login failed");
-  return res.json();
+  if (!res.ok) throw new Error("Invalid credentials");
+  const data = await res.json();
+  setToken(data.access_token);
+  return data;
+}
+
+export async function register(username: string, password: string): Promise<{ access_token: string }> {
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || "Registration failed");
+  }
+  const data = await res.json();
+  setToken(data.access_token);
+  return data;
+}
+
+export function logout(): void {
+  clearToken();
 }
 
 export async function uploadResume(file: File) {

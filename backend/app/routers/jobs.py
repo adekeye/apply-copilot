@@ -11,6 +11,7 @@ from app.schemas import (
     JobImportRequest,
     JobListResponse,
     JobResponse,
+    ResumeStructured,
     ScoreResponse,
     StatusRequest,
     StatusResponse,
@@ -37,6 +38,29 @@ def _to_job_response(job: Job) -> JobResponse:
         status=job.status,
         created_at=job.created_at,
     )
+
+
+def _profile_to_resume(profile: ResumeProfile) -> ResumeStructured:
+    return ResumeStructured(
+        raw_text=profile.raw_text,
+        contact=profile.contact,
+        skills=profile.skills,
+        years_experience=profile.years_experience,
+        projects=profile.projects,
+        employers=profile.employers,
+        education=profile.education,
+        keywords=profile.keywords,
+        location_preferences=profile.location_preferences,
+        work_auth=profile.work_auth,
+        links=profile.links,
+    )
+
+
+def _require_resume(db: Session) -> ResumeProfile:
+    profile = db.query(ResumeProfile).order_by(desc(ResumeProfile.created_at)).first()
+    if not profile:
+        raise HTTPException(status_code=400, detail="Upload a resume first")
+    return profile
 
 
 @router.post("/import", response_model=JobListResponse)
@@ -79,8 +103,7 @@ def list_jobs(
         query = query.filter(Job.status == status)
     if min_score is not None:
         query = query.filter(Job.score >= min_score)
-    jobs = query.all()
-    return JobListResponse(items=[_to_job_response(job) for job in jobs])
+    return JobListResponse(items=[_to_job_response(j) for j in query.all()])
 
 
 @router.get("/{job_id}", response_model=JobResponse)
@@ -97,33 +120,14 @@ def score(job_id: int, _: str = Depends(get_current_user), db: Session = Depends
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
 
-    profile = db.query(ResumeProfile).order_by(desc(ResumeProfile.created_at)).first()
-    if not profile:
-        raise HTTPException(status_code=400, detail="Upload a resume first")
-
-    from app.schemas import ResumeStructured
-
-    resume = ResumeStructured(
-        raw_text=profile.raw_text,
-        contact=profile.contact,
-        skills=profile.skills,
-        years_experience=profile.years_experience,
-        projects=profile.projects,
-        employers=profile.employers,
-        education=profile.education,
-        keywords=profile.keywords,
-        location_preferences=profile.location_preferences,
-        work_auth=profile.work_auth,
-        links=profile.links,
-    )
+    resume = _profile_to_resume(_require_resume(db))
     extracted = JobExtracted.model_validate(job.extracted)
+    total, explanation = score_job(resume, extracted, job.jd_text)
 
-    total, explanation = score_job(resume, extracted)
     job.score = total
     job.score_explanation = explanation
     db.add(job)
     db.commit()
-
     return ScoreResponse(score=total, explanation=explanation)
 
 
@@ -138,25 +142,7 @@ def generate(
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
 
-    profile = db.query(ResumeProfile).order_by(desc(ResumeProfile.created_at)).first()
-    if not profile:
-        raise HTTPException(status_code=400, detail="Upload a resume first")
-
-    from app.schemas import ResumeStructured
-
-    resume = ResumeStructured(
-        raw_text=profile.raw_text,
-        contact=profile.contact,
-        skills=profile.skills,
-        years_experience=profile.years_experience,
-        projects=profile.projects,
-        employers=profile.employers,
-        education=profile.education,
-        keywords=profile.keywords,
-        location_preferences=profile.location_preferences,
-        work_auth=profile.work_auth,
-        links=profile.links,
-    )
+    resume = _profile_to_resume(_require_resume(db))
     extracted = JobExtracted.model_validate(job.extracted)
     policy = load_policy()
 
@@ -179,7 +165,6 @@ def generate(
     job.status = JobStatus.drafted
     db.add(job)
     db.commit()
-
     return GenerateResponse(cover_letter=cover_letter, answers=answers, checklist=checklist)
 
 

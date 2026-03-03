@@ -5,7 +5,8 @@ from app.core.config import get_settings
 from app.core.database import Base, SessionLocal, engine
 from app.core.security import get_password_hash
 from app.models import User
-from app.routers import auth, jobs, resume
+from app.worker.scheduler import start_scheduler, stop_scheduler
+from app.routers import auth, discovery, jobs, resume
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name)
@@ -30,6 +31,12 @@ def on_startup() -> None:
             db.commit()
     finally:
         db.close()
+    start_scheduler()
+
+
+@app.on_event("shutdown")
+def on_shutdown() -> None:
+    stop_scheduler()
 
 
 @app.get("/health")
@@ -43,3 +50,4 @@ def health():
 app.include_router(auth.router)
 app.include_router(resume.router)
 app.include_router(jobs.router)
+app.include_router(discovery.router)

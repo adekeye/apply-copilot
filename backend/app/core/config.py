@@ -21,6 +21,22 @@ class Settings(BaseSettings):
     policy_path: str = "../policy.yaml"
     fetch_rate_limit_per_minute: int = 20
 
+    # Email notifications
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from: str | None = None
+    notify_email_to: str | None = None
+    notify_score_threshold: float = 80.0
+
+    # Job discovery worker
+    discovery_enabled: bool = False
+    discovery_search_terms: str = "software engineer"
+    discovery_location: str = "remote"
+    discovery_greenhouse_companies: str = ""  # comma-separated slugs, e.g. "stripe,notion"
+    discovery_lever_companies: str = ""       # comma-separated slugs, e.g. "airbnb,figma"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 
